@@ -1,41 +1,33 @@
-# rpgSaveTrainer
+# RPG Save Editor
 
-This template should help get you started developing with Vue 3 in Vite.
+一个基于 Vue 3 的网页版 RPG Maker 存档修改器，用于解码、编辑并重新打包 `.rpgsave` 文件。
 
-## Recommended IDE Setup
+RPG Maker 存档内容是经过 LZString + Base64 编码的 JSON 字符串。本项目的所有文件处理均在浏览器本地完成，不会上传存档数据。
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## 功能
 
-## Recommended Browser Setup
+- 点击选择或拖放 `.rpgsave` 文件
+- 自动解码并格式化 JSON 内容
+- JSON 语法高亮、行号与格式校验
+- 支持 `Ctrl/Cmd + F` 查找定位
+- 支持恢复导入时的原始内容
+- 重新编码并下载修改后的存档
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+## 技术栈
 
-## Type Support for `.vue` Imports in TS
+- Vue 3
+- TypeScript
+- Vite
+- LZString
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+## 本地运行
 
 ```sh
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## 生产构建
 
 ```sh
 npm run build
