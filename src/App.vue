@@ -281,16 +281,18 @@ onBeforeUnmount(() => {
         <span>RPG Save Editor</span>
       </div>
       <div class="header-actions">
-        <button v-if="hasFile" class="button button-ghost" type="button" @click="openFilePicker">
-          <span class="icon icon-upload" aria-hidden="true"></span> 更换文件
+        <button v-if="hasFile" class="button button-ghost" type="button" aria-label="更换存档" title="更换存档" @click="openFilePicker">
+          <span class="icon icon-upload" aria-hidden="true"></span><span class="button-label">更换存档</span>
         </button>
         <button
           class="button button-primary"
           type="button"
+          aria-label="下载存档"
+          title="下载存档"
           :disabled="!hasFile || !parsedJson.valid"
           @click="downloadSave"
         >
-          <span class="icon icon-download" aria-hidden="true"></span> 下载存档
+          <span class="icon icon-download" aria-hidden="true"></span><span class="button-label">下载存档</span>
         </button>
       </div>
     </header>
@@ -310,7 +312,6 @@ onBeforeUnmount(() => {
       <template v-else>
         <div class="filebar">
           <div class="file-info">
-            <span class="file-icon" aria-hidden="true"></span>
             <div>
               <strong>{{ fileName }}</strong>
               <span>{{ formattedSize }} · LZString / Base64</span>
@@ -323,7 +324,7 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="editor-frame">
-          <div class="editor-labelbar">
+          <div class="editor-labelbar" :class="{ 'is-finding': isFindOpen }">
             <span>JSON</span>
             <div v-if="isFindOpen" class="findbar" role="search">
               <input
@@ -342,9 +343,16 @@ onBeforeUnmount(() => {
               <button type="button" title="下一个匹配" aria-label="下一个匹配" @mousedown.prevent @click="findNext(1)">↓</button>
               <button class="find-close" type="button" title="关闭查找" aria-label="关闭查找" @click="closeFind">×</button>
             </div>
-            <span v-else class="validity" :class="parsedJson.valid ? 'is-valid' : 'is-invalid'">
-              <i aria-hidden="true"></i>{{ parsedJson.valid ? '格式有效' : 'JSON 格式错误' }}
-            </span>
+            <div v-else class="editor-tools">
+              <span class="validity" :class="parsedJson.valid ? 'is-valid' : 'is-invalid'">
+                <i aria-hidden="true"></i>{{ parsedJson.valid ? '格式有效' : 'JSON 格式错误' }}
+              </span>
+              <button class="search-trigger" type="button" aria-label="查找 JSON 内容" title="查找 JSON 内容" @click="openFind">
+                <span class="search-trigger-icon" aria-hidden="true"></span>
+                <span>查找</span>
+                <kbd>Ctrl F</kbd>
+              </button>
+            </div>
           </div>
           <div class="editor-wrap">
             <div class="gutter" aria-hidden="true">
@@ -401,17 +409,12 @@ button { border: 0; }
   justify-content: space-between; background: #fff; border-bottom: 1px solid #e7ebf2;
 }
 .brand { display: flex; align-items: center; gap: 11px; font-size: 15px; font-weight: 700; }
-.brand-mark, .file-icon { display: grid; place-items: center; color: #fff; background: #2878f0; }
+.brand-mark { display: grid; place-items: center; color: #fff; background: #2878f0; }
 .brand-mark { width: 30px; height: 30px; border-radius: 8px; box-shadow: 0 5px 14px #2878f038; }
 .brand-mark::before {
   content: ''; width: 19px; height: 19px; background: #fff;
   -webkit-mask: url('/code.svg') center / contain no-repeat;
   mask: url('/code.svg') center / contain no-repeat;
-}
-.file-icon::before {
-  content: ''; width: 20px; height: 20px; background: #fff;
-  -webkit-mask: url('/file.svg') center / contain no-repeat;
-  mask: url('/file.svg') center / contain no-repeat;
 }
 .icon { display: inline-block; width: 14px; height: 14px; flex: 0 0 14px; background: currentColor; }
 .icon-upload {
@@ -464,8 +467,7 @@ button { border: 0; }
   height: 72px; flex: 0 0 72px; padding: 0 20px; display: flex; align-items: center;
   justify-content: space-between; border-bottom: 1px solid #ebeff5;
 }
-.file-info { min-width: 0; display: flex; align-items: center; gap: 12px; }
-.file-icon { width: 36px; height: 36px; flex: 0 0 36px; border-radius: 9px; font-size: 12px; }
+.file-info { min-width: 0; display: flex; align-items: center; }
 .file-info div { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .file-info strong { max-width: min(50vw, 560px); overflow: hidden; font-size: 13px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
 .file-info div span { color: #929cad; font-size: 11px; }
@@ -481,6 +483,21 @@ button { border: 0; }
 .editor-labelbar {
   height: 38px; flex: 0 0 38px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between;
   color: #687489; background: #fafbfd; border-bottom: 1px solid #e7ebf1; font-size: 10px; font-weight: 700; letter-spacing: .08em;
+}
+.editor-tools { display: flex; align-items: center; gap: 14px; letter-spacing: 0; }
+.search-trigger {
+  height: 27px; padding: 0 8px; display: inline-flex; align-items: center; gap: 6px; color: #536176;
+  background: #fff; border: 1px solid #dbe2ec; border-radius: 6px; font-size: 11px; cursor: pointer;
+}
+.search-trigger:hover { color: #216edc; border-color: #b7cff1; background: #f5f9ff; }
+.search-trigger-icon { position: relative; width: 12px; height: 12px; border: 1.5px solid currentColor; border-radius: 50%; }
+.search-trigger-icon::after {
+  content: ''; position: absolute; width: 5px; height: 1.5px; right: -4px; bottom: -2px;
+  background: currentColor; border-radius: 1px; transform: rotate(45deg);
+}
+.search-trigger kbd {
+  padding: 1px 4px; color: #9099a8; background: #f3f5f8; border: 1px solid #e1e5eb;
+  border-radius: 4px; font-family: inherit; font-size: 9px; font-weight: 500; line-height: 14px;
 }
 .findbar { display: flex; align-items: center; gap: 3px; height: 30px; letter-spacing: 0; }
 .findbar input {
@@ -533,13 +550,21 @@ button { border: 0; }
 .toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(8px); }
 .visually-hidden { position: fixed; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%); white-space: nowrap; }
 @media (max-width: 680px) {
-  .topbar { height: 60px; padding: 0 14px; } .brand span:last-child { display: none; } .button { padding: 0 12px; }
+  .topbar { height: 60px; padding: 0 12px; }
+  .brand { gap: 8px; font-size: 13px; }
+  .header-actions { gap: 6px; }
+  .header-actions .button { width: 38px; padding: 0; gap: 0; }
+  .header-actions .button-label { display: none; }
+  .button { padding: 0 12px; }
   .workspace { width: calc(100% - 16px); height: calc(100vh - 76px); min-height: 500px; margin: 8px auto; border-radius: 10px; }
-  .filebar { height: 64px; flex-basis: 64px; padding: 0 12px; } .file-info strong { max-width: 36vw; }
+  .filebar { height: 64px; flex-basis: 64px; padding: 0 12px; } .file-info strong { max-width: 52vw; }
   .changed-indicator { display: none; } .editor-frame { margin: 8px; }
+  .editor-tools { gap: 0; } .editor-tools .validity { display: none; }
+  .search-trigger kbd { display: none; }
+  .editor-labelbar.is-finding > span:first-child { display: none; }
   .highlight-layer, .code-input { padding-left: 58px; font-size: 12px; } .gutter { width: 44px; }
   .line-numbers span { padding-right: 9px; } .statusbar { gap: 12px; } .statusbar span:nth-child(2) { display: none; }
-  .findbar input { width: min(160px, 42vw); }
+  .findbar input { width: min(150px, calc(100vw - 185px)); min-width: 100px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
 </style>
